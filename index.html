@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社区AI运营平台 · CommunityOS</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg-base: #080c17;
+  --bg-panel: #0e1320;
+  --bg-card: #141b2b;
+  --bg-hover: #1a2338;
+  --border: #1e2a3f;
+  --text-primary: #e4e8f1;
+  --text-secondary: #8893a8;
+  --text-muted: #5a6680;
+  --accent-blue: #4d90fe;
+  --accent-purple: #8b5cf6;
+  --accent-gold: #f0b429;
+  --accent-green: #34d399;
+  --accent-red: #f87171;
+  --accent-orange: #fb923c;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* === 顶部栏 === */
+.topbar {
+  height: 52px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+.logo {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.logo span { color: var(--accent-purple); }
+
+/* 产品选择器 */
+.product-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+}
+.product-selector:hover { border-color: var(--accent-blue); }
+.product-selector .prod-icon {
+  width: 22px; height: 22px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: #fff; font-weight: 700;
+}
+.product-selector .prod-name { font-size: 13px; font-weight: 600; color: #fff; }
+.product-selector .prod-arrow { font-size: 10px; color: var(--text-muted); }
+.product-selector .prod-lock {
+  font-size: 10px;
+  color: var(--accent-gold);
+  margin-left: 4px;
+}
+
+/* 角色切换 */
+.role-switch {
+  margin-left: 8px;
+  display: flex;
+  gap: 4px;
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 3px;
+  border: 1px solid var(--border);
+}
+.role-btn {
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.role-btn.active {
+  background: var(--accent-blue);
+  color: #fff;
+}
+.role-btn:hover:not(.active) { color: var(--text-secondary); }
+
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.topbar-right .time {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+}
+
+/* === 主布局 === */
+.main-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* === 侧边栏 === */
+.sidebar {
+  width: 200px;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  padding: 12px 0;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.sidebar-section {
+  margin-bottom: 16px;
+}
+.sidebar-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  padding: 0 16px;
+  margin-bottom: 6px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+  position: relative;
+}
+.nav-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.nav-item.active {
+  background: linear-gradient(90deg, rgba(77,144,254,0.12) 0%, transparent 100%);
+  color: #fff;
+  border-left-color: var(--accent-blue);
+}
+.nav-item .nav-icon { font-size: 15px; width: 20px; text-align: center; }
+.nav-item .badge {
+  margin-left: auto;
+  font-size: 10px;
+  background: var(--accent-red);
+  color: #fff;
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-weight: 600;
+}
+.nav-item .badge.green { background: var(--accent-green); }
+
+/* === 内容区 === */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 模块标题栏 */
+.module-header {
+  padding: 16px 24px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.module-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+.module-header .subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* 三栏面板 */
+.panels {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 16px 24px;
+  overflow-y: auto;
+}
+.panel {
+  background: var(--bg-panel);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.panel-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-header .panel-icon { font-size: 14px; }
+.panel-header .panel-title { font-size: 13px; font-weight: 700; color: #fff; }
+.panel-header .panel-badge {
+  margin-left: auto;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.badge-data { background: rgba(77,144,254,0.15); color: var(--accent-blue); }
+.badge-insight { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
+.badge-action { background: rgba(240,180,41,0.15); color: var(--accent-gold); }
+
+.panel-body {
+  flex: 1;
+  padding: 12px 16px;
+  overflow-y: auto;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* 数据层卡片 */
+.data-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.data-metric {
+  flex: 1;
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+.data-metric .val {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+.data-metric .val.gold { color: var(--accent-gold); }
+.data-metric .val.red { color: var(--accent-red); }
+.data-metric .val.green { color: var(--accent-green); }
+.data-metric .lbl {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* 趋势小条 */
+.trend-bar {
+  height: 4px;
+  background: var(--bg-card);
+  border-radius: 2px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+.trend-bar .fill {
+  height: 100%;
+  border-radius: 2px;
+}
+.fill.up { background: var(--accent-green); }
+.fill.down { background: var(--accent-red); }
+.fill.warn { background: var(--accent-orange); }
+
+/* 服务器列表 */
+.server-list {
+  list-style: none;
+}
+.server-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.server-list li:last-child { border-bottom: none; }
+.server-list .srv-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.server-list .srv-stat { margin-left: auto; font-size: 11px; }
+.srv-stat.up { color: var(--accent-green); }
+.srv-stat.down { color: var(--accent-red); }
+
+/* 洞察卡片 */
+.insight-card {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-left: 3px solid var(--accent-purple);
+}
+.insight-card.warn { border-left-color: var(--accent-orange); }
+.insight-card.good { border-left-color: var(--accent-green); }
+.insight-card .insight-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.insight-card .insight-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* 动作区 */
+.action-item {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: 1px solid transparent;
+}
+.action-item:hover { background: var(--bg-hover); border-color: var(--accent-gold); }
+.action-item .act-title { font-size: 12px; font-weight: 600; color: #fff; }
+.action-item .act-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.action-item .act-btn {
+  margin-top: 8px;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 6px;
+  background: var(--accent-gold);
+  color: #1a1a1a;
+  cursor: pointer;
+  border: none;
+}
+.action-item .act-btn.small {
+  background: transparent;
+  border: 1px solid var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+/* === 底部状态栏 === */
+.statusbar {
+  height: 32px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  font-size: 10px;
+  color: var(--text-muted);
+  gap: 20px;
+  flex-shrink: 0;
+}
+.status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.status-dot.green { background: var(--accent-green); }
+
+/* === 筛选栏 === */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 24px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.filter-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.filter-dropdown {
+  position: relative;
+}
+.filter-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 0.15s;
+  white-space: nowrap;
+}
+.filter-trigger:hover { border-color: var(--accent-blue); }
+.filter-trigger .arrow { font-size: 8px; color: var(--text-muted); }
+.filter-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  z-index: 100;
+  min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.filter-menu.show { display: block; }
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.1s;
+  white-space: nowrap;
+}
+.filter-option:hover { background: var(--bg-hover); color: var(--text-primary); }
+.filter-option.selected { background: rgba(77,144,254,0.15); color: var(--accent-blue); font-weight: 600; }
+.filter-option .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.filter-option .dot.all { background: var(--accent-blue); }
+.filter-option .dot.dc { background: #5865F2; }
+.filter-option .dot.rdt { background: #ff4500; }
+.filter-option .dot.steam { background: var(--accent-green); }
+.filter-option .dot.twitter { background: var(--accent-blue); }
+.filter-badge {
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-left: auto;
+}
+.filter-badge.active-badge { background: rgba(52,211,153,0.15); color: var(--accent-green); }
+.filter-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 6px;
+}
+
+/* 响应式 */
+@media (max-width: 1100px) {
+  .panels { grid-template-columns: 1fr; }
+  .filter-bar { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- 顶部栏 -->
+<div class="topbar">
+  <div class="logo">Community<span>OS</span></div>
+  <div class="product-selector" id="productSelector">
+    <div class="prod-icon">OH</div>
+    <span class="prod-name">Once Human</span>
+    <span class="prod-arrow">▾</span>
+    <span class="prod-lock">🔒</span>
+  </div>
+  <div class="role-switch">
+    <button class="role-btn" data-role="community">社区</button>
+    <button class="role-btn active" data-role="ops">运营</button>
+    <button class="role-btn" data-role="product">产品</button>
+    <button class="role-btn" data-role="marketing">营销</button>
+  </div>
+  <div class="topbar-right">
+    <span class="time">2026-06-26 17:32</span>
+    <div class="avatar">YY</div>
+  </div>
+</div>
+
+<!-- 主布局 -->
+<div class="main-layout">
+
+  <!-- 侧边栏 -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">核心模块</div>
+      <div class="nav-item active" data-module="hotspot">
+        <span class="nav-icon">🔥</span> 热点追踪
+        <span class="badge">3</span>
+      </div>
+      <div class="nav-item" data-module="sentiment">
+        <span class="nav-icon">📊</span> 舆情反馈
+        <span class="badge green">1</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">社区管理</div>
+      <div class="nav-item" data-module="dc">
+        <span class="nav-icon">💬</span> DC 管理
+      </div>
+      <div class="nav-item" data-module="rdt">
+        <span class="nav-icon">📱</span> RDT 管理
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">资源</div>
+      <div class="nav-item" data-module="koc">
+        <span class="nav-icon">👤</span> KOC
+      </div>
+      <div class="nav-item" data-module="thirdparty">
+        <span class="nav-icon">📢</span> 三方号
+      </div>
+    </div>
+  </div>
+
+  <!-- 内容区 -->
+  <div class="content" id="mainContent">
+    <!-- JS 动态渲染 -->
+  </div>
+
+</div>
+
+<!-- 底部状态栏 -->
+<div class="statusbar">
+  <span><span class="status-dot green"></span> DC 数据同步正常</span>
+  <span><span class="status-dot green"></span> RDT 爬虫正常</span>
+  <span>SCRM · v0.9.2</span>
+  <span style="margin-left:auto;">产品权限: Once Human · 更新于 17:30</span>
+</div>
+
+<script>
+// ============ 模块数据 ============
+const modules = {
+  hotspot: {
+    filterable: true,
+    scopeOptions: [
+      { id: 'all', label: '全量（DC + RDT + 竞品）', dot: 'all' },
+      { id: 'dc', label: '仅 DC', dot: 'dc' },
+      { id: 'rdt', label: '仅 RDT', dot: 'rdt' },
+      { id: 'competitive', label: '仅竞品信号', dot: 'steam' },
+    ],
+    timeOptions: [
+      { id: 'today', label: '今日' },
+      { id: '7d', label: '近 7 天' },
+      { id: '30d', label: '近 30 天' },
+      { id: 'custom', label: '自定义...' },
+    ],
+    title: "热点追踪",
+    subtitle: "DC全量服务器变化趋势 · RDT平台热点帖文",
+    data: [
+      { label: "DC 活跃服务器", val: "142", change: "+8", color: "green", trend: 78, dir: "up" },
+      { label: "RDT 今日热帖", val: "37", change: "+12", color: "green", trend: 65, dir: "up" },
+      { label: "竞品动态信号", val: "6", change: "2条预警", color: "red", trend: 45, dir: "warn" },
+    ],
+    servers: [
+      { name: "NA-East #01", members: "48.2K", chg: "+3.2%", dir: "up" },
+      { name: "NA-West #02", members: "31.5K", chg: "+1.8%", dir: "up" },
+      { name: "EU-Central #01", members: "27.1K", chg: "-0.4%", dir: "down" },
+      { name: "Asia-SG #01", members: "22.8K", chg: "+5.1%", dir: "up" },
+      { name: "SA-Brazil #01", members: "12.4K", chg: "+0.7%", dir: "up" },
+    ],
+    insights: [
+      { type: "warn", title: "EU-Central 活跃度连降3天", desc: "该服务器过去72小时消息量下降18%。关联信号：竞品Dune: Awakening同期在EU区开启免费周末，建议关注用户流失趋势并考虑EU区专项活动。" },
+      { type: "", title: "RDT 热帖「Once Human Base Tour」登顶", desc: "r/OnceHuman 热帖排名#1，12h内获赞2.4K。帖子展示了玩家自建基地的创意设计。建议：① 官方转发至DC #creations 频道；② 策划「基地设计大赛」活动放大传播。" },
+      { type: "good", title: "Asia-SG 新赛季拉动增长", desc: "服务器成员+5.1%，新玩家涌入集中在#general和#new-players频道。FAQ Bot自动处理了83%的新手提问，人工仅介入17次。" },
+    ],
+    actions: [
+      { title: "生成今日热点日报", desc: "AI自动汇总DC+RDT热点，含数据卡片+洞察分析+建议动作", btn: "一键生成" },
+      { title: "EU区专项触达方案", desc: "基于EU-Central下滑数据，生成针对EU玩家的回流触达策略", btn: "生成方案" },
+      { title: "查看竞品动态详情", desc: "6条竞品信号中2条为高优先级预警，点击查看完整分析", btn: "查看详情" },
+    ],
+  },
+  sentiment: {
+    filterable: true,
+    scopeOptions: [
+      { id: 'all', label: '全平台（DC + RDT + Steam + X）', dot: 'all' },
+      { id: 'dc', label: '仅 DC', dot: 'dc' },
+      { id: 'rdt', label: '仅 RDT', dot: 'rdt' },
+      { id: 'steam', label: '仅 Steam 评测', dot: 'steam' },
+      { id: 'twitter', label: '仅 Twitter/X', dot: 'twitter' },
+    ],
+    timeOptions: [
+      { id: 'today', label: '今日' },
+      { id: '7d', label: '近 7 天' },
+      { id: '30d', label: '近 30 天' },
+      { id: 'custom', label: '自定义...' },
+    ],
+    title: "舆情反馈",
+    subtitle: "全量玩家反馈 · 可选择平台和时间段",
+    data: [
+      { label: "今日舆情总量", val: "1,283", change: "+15%", color: "green", trend: 70, dir: "up" },
+      { label: "负面情绪占比", val: "12.4%", change: "-2.1%", color: "green", trend: 30, dir: "down" },
+      { label: "高风险告警", val: "1", change: "已处理", color: "red", trend: 20, dir: "warn" },
+    ],
+    servers: [
+      { name: "DC #general", count: "432条", sentiment: "中性偏正" },
+      { name: "DC #feedback", count: "218条", sentiment: "负面集中" },
+      { name: "RDT r/OnceHuman", count: "367条", sentiment: "正面为主" },
+      { name: "Steam 评测", count: "198条", sentiment: "褒贬不一" },
+      { name: "Twitter/X", count: "68条", sentiment: "正面" },
+    ],
+    insights: [
+      { type: "warn", title: "DC #feedback 频道「服务器延迟」集中反馈", desc: "过去6小时内218条反馈中，43%涉及NA-West服务器延迟问题。已触发高风险告警并推送至产品团队。建议：① 技术侧排查；② 准备社区安抚话术。" },
+      { type: "", title: "Steam评测「P2W」讨论回升", desc: "近3天Steam评测中「Pay to Win」关键词出现频率上升40%。建议：① 密切关注是否发酵成舆情事件；② 准备FAQ和澄清话术。" },
+      { type: "good", title: "新版本好评集中在「Boss战设计」", desc: "正面反馈中68%提到Boss战体验提升，可作为后续营销重点方向。" },
+    ],
+    actions: [
+      { title: "查看高风险告警详情", desc: "1条高风险告警待确认——NA-West延迟问题", btn: "立即查看" },
+      { title: "生成舆情日报", desc: "今日舆情总览+负面集中话题+建议应对策略", btn: "一键生成" },
+      { title: "导出舆情数据", desc: "导出近7天全平台舆情数据，用于半年汇报", btn: "导出CSV" },
+    ],
+  },
+  dc: {
+    title: "DC 管理",
+    subtitle: "数据趋势 · 活动 · 内容分发 · 版主 · 私信 · 客诉",
+    data: [
+      { label: "DC 总规模", val: "218K", change: "+12K", color: "green", trend: 82, dir: "up" },
+      { label: "日均消息量", val: "86.4K", change: "+8%", color: "green", trend: 75, dir: "up" },
+      { label: "本周私信触达", val: "47.2K", change: "500倍提升", color: "gold", trend: 95, dir: "up" },
+    ],
+    servers: [
+      { name: "活动：新赛季上线", status: "已完成", effect: "+22%活跃", time: "6/24" },
+      { name: "活动：周末双倍经验", status: "进行中", effect: "+15%在线", time: "6/26-27" },
+      { name: "内容分发：更新公告", status: "已推送", effect: "触达85K", time: "6/25" },
+      { name: "版主考核：6月月度", status: "AI自动评分", effect: "28人达标", time: "6/30" },
+    ],
+    insights: [
+      { type: "good", title: "新赛季上线拉动活跃度+22%", desc: "6/24赛季更新后，DC全服消息量从日均64K升至86K。活动Bot自动分发了12个服务器的差异化的公告和FAQ，人工仅介入审核环节。" },
+      { type: "", title: "私信触达效果显著：500倍规模提升", desc: "对比去年同期手动触达5万/天，AI多Bot并发已实现47.2K/天。打开率从18%升至34%，封禁率从3.1%降至0.6%。" },
+      { type: "warn", title: "客诉自动处理率89%，仍有11%需人工", desc: "主要分布在退款纠纷和账号封禁申诉两类复杂case。建议：补充这两类的FAQ规则库，目标Q3将自动处理率提升至95%。" },
+    ],
+    actions: [
+      { title: "一键创建新频道", desc: "AI自动规划频道结构→配置权限→设置Bot→上线", btn: "创建" },
+      { title: "新建私信触达任务", desc: "选择目标用户群→AI生成触达策略→多Bot并发执行", btn: "新建" },
+      { title: "查看活动复盘报告", desc: "6/24新赛季活动全面数据复盘", btn: "查看" },
+    ],
+  },
+  rdt: {
+    title: "RDT 管理",
+    subtitle: "数据趋势 · 活动 · 内容分发 · 版主 · 私信",
+    data: [
+      { label: "RDT 订阅数", val: "156K", change: "+5.8K", color: "green", trend: 68, dir: "up" },
+      { label: "周帖文量", val: "1,240", change: "+18%", color: "green", trend: 72, dir: "up" },
+      { label: "KOC合作帖", val: "34", change: "本月累计", color: "gold", trend: 55, dir: "up" },
+    ],
+    servers: [
+      { name: "活动：AMA with Devs", status: "6/28", effect: "预热中", time: "预计500+参与" },
+      { name: "热点帖：基地设计大赛", status: "发酵中", effect: "2.4K赞", time: "r/OnceHuman #1" },
+      { name: "内容分发：更新日志", status: "已发布", effect: "380评论", time: "6/25" },
+      { name: "版主：新Mod招募", status: "筛选中", effect: "42人申请", time: "6/20-27" },
+    ],
+    insights: [
+      { type: "good", title: "AMA活动预热效果超预期", desc: "预热帖24h内获1.8K赞、420评论。玩家最关心问题TOP3：新地图时间线、Boss难度调整、PvP平衡。建议据此准备AMA提纲。" },
+      { type: "", title: "竞品对比：Dune帖文量激增", desc: "r/DuneAwakening 本周帖文量从日均80升至210，其免费周末活动引发讨论。建议：关注竞品动态，RDT侧不做直接回应。" },
+      { type: "", title: "Hot Posts算法调整后帖文质量提升", desc: "AI推荐权重从纯热度→质量+热度混合后，低质meme帖占比降34%，攻略类帖文曝光+28%。" },
+    ],
+    actions: [
+      { title: "新建RDT活动", desc: "从热点抓取→策划→内容生成→分发→监控", btn: "新建" },
+      { title: "生成RDT周报", desc: "本周帖文数据+热点分析+竞品对比", btn: "一键生成" },
+      { title: "管理版主团队", desc: "查看Mod活跃度、考核评分、任务分配", btn: "进入" },
+    ],
+  },
+  koc: {
+    title: "KOC",
+    subtitle: "KOC数据 · 建联 · 效果追踪 · 自动付款",
+    data: [
+      { label: "KOC资源池", val: "1,600+", change: "+120", color: "green", trend: 90, dir: "up" },
+      { label: "本月合作中", val: "34", change: "12待验收", color: "gold", trend: 60, dir: "up" },
+      { label: "平均ROI", val: "1:4.8", change: "+0.6", color: "green", trend: 78, dir: "up" },
+    ],
+    servers: [
+      { name: "Twitch主播A", platform: "Twitch", reach: "120K", category: "Survival" },
+      { name: "YT创作者B", platform: "YouTube", reach: "85K", category: "Base Build" },
+      { name: "TikTok达人C", platform: "TikTok", reach: "340K", category: "Game Tips" },
+      { name: "Twitch主播D", platform: "Twitch", reach: "56K", category: "PvP" },
+    ],
+    insights: [
+      { type: "good", title: "Twitch品类KOC效果优于YouTube", desc: "Survival品类Twitch主播直播后7天回流率4.2%，YouTube视频仅1.8%。建议：campaign预算向Twitch倾斜。" },
+      { type: "", title: "TikTok内容短平快类ROI最高", desc: "「30秒基地速建」类短视频平均CTR 8.2%，远高于长视频2.1%。建议：后续重点投放短平快内容KOC。" },
+      { type: "", title: "自动付款功能上线后KOC满意度提升", desc: "从手动对账付款→自动追踪数据+自动结算，结款周期从15天缩至3天，KOC续约率+22%。" },
+    ],
+    actions: [
+      { title: "创建KOC需求单", desc: "输入预算/地区/内容类型→AI推荐KOC组合+建联方案", btn: "新建需求" },
+      { title: "查看KOC效果报告", desc: "本月34位KOC合作数据，包含曝光/回流/转化", btn: "查看报告" },
+      { title: "管理KOC资源池", desc: "标签管理、评级更新、黑名单维护", btn: "进入" },
+    ],
+  },
+  thirdparty: {
+    title: "三方号",
+    subtitle: "跨平台三方号成效对比",
+    data: [
+      { label: "三方号总量", val: "18", change: "覆盖5平台", color: "gold", trend: 80, dir: "up" },
+      { label: "月均曝光", val: "1.2M", change: "+23%", color: "green", trend: 72, dir: "up" },
+      { label: "引流至DC", val: "8.4K", change: "+17%", color: "green", trend: 65, dir: "up" },
+    ],
+    servers: [
+      { name: "Twitter/X @OnceHuman", followers: "86K", engagement: "3.2%", posts: "42/月" },
+      { name: "YouTube Official", followers: "120K", engagement: "4.1%", posts: "8/月" },
+      { name: "TikTok Official", followers: "210K", engagement: "6.8%", posts: "18/月" },
+      { name: "Facebook Page", followers: "45K", engagement: "1.4%", posts: "24/月" },
+    ],
+    insights: [
+      { type: "good", title: "TikTok涨粉速度远超其他平台", desc: "6月净增32K粉丝，互动率6.8%为全平台最高。内容类型「短平快攻略+高光时刻」表现最佳。" },
+      { type: "", title: "Facebook活跃度持续低迷", desc: "互动率1.4%低于行业平均2.5%。建议：评估是否继续投入Facebook资源或转为自动同步。" },
+      { type: "", title: "三方号引流DC效果：Twitter > YouTube > TikTok", desc: "虽然TikTok粉丝量最大，但DC引流转化Twitter最高（单帖平均引流210人 vs TikTok 85人）。" },
+    ],
+    actions: [
+      { title: "生成三方号月报", desc: "全平台数据对比+内容表现排名+分发建议", btn: "一键生成" },
+      { title: "同步内容至全平台", desc: "一键将DC公告/更新日志同步至所有三方号", btn: "同步发布" },
+      { title: "查看内容日历", desc: "未来两周内容排期+自动提醒", btn: "查看" },
+    ],
+  },
+};
+
+// ============ 渲染函数 ============
+function renderFilterBar(modKey) {
+  const m = modules[modKey];
+  if (!m.filterable) return '';
+  const scopeOpts = m.scopeOptions.map((o, i) =>
+    `<div class="filter-option${i===0?' selected':''}" data-val="${o.id}" data-group="scope">
+      <span class="dot ${o.dot}"></span>${o.label}
+      ${i===0?'<span class="filter-badge active-badge">当前</span>':''}
+    </div>`
+  ).join('');
+  const timeOpts = m.timeOptions.map((o, i) =>
+    `<div class="filter-option${i===0?' selected':''}" data-val="${o.id}" data-group="time">${o.label}</div>`
+  ).join('');
+  return `
+  <div class="filter-bar" id="filterBar">
+    <div class="filter-group">
+      <span class="filter-label">数据范围</span>
+      <div class="filter-dropdown" id="scopeDropdown">
+        <div class="filter-trigger" id="scopeTrigger">
+          <span class="dot ${m.scopeOptions[0].dot}"></span>
+          <span id="scopeText">${m.scopeOptions[0].label}</span>
+          <span class="arrow">▾</span>
+        </div>
+        <div class="filter-menu" id="scopeMenu">${scopeOpts}</div>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">时间范围</span>
+      <div class="filter-dropdown" id="timeDropdown">
+        <div class="filter-trigger" id="timeTrigger">
+          <span id="timeText">${m.timeOptions[0].label}</span>
+          <span class="arrow">▾</span>
+        </div>
+        <div class="filter-menu" id="timeMenu">${timeOpts}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderModule(modKey) {
+  const m = modules[modKey];
+  const filterHTML = renderFilterBar(modKey);
+  const dataCards = m.data.map(d => `
+    <div class="data-metric">
+      <div class="val ${d.color === 'gold' ? 'gold' : d.color === 'red' ? 'red' : d.color === 'green' ? 'green' : ''}">${d.val}</div>
+      <div class="lbl">${d.label}</div>
+      <div class="lbl" style="color:${d.color==='red'?'var(--accent-red)':'var(--accent-green)'}">${d.change}</div>
+      <div class="trend-bar"><div class="fill ${d.dir}" style="width:${d.trend}%"></div></div>
+    </div>
+  `).join('');
+
+  const servers = m.servers ? `
+    <div style="font-size:11px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">实时监控</div>
+    <ul class="server-list">
+      ${m.servers.map(s => {
+        if (s.members) return `<li><span class="srv-name">${s.name}</span><span class="srv-stat ${s.dir}">${s.members} &nbsp;${s.chg||''}</span></li>`;
+        if (s.count) return `<li><span class="srv-name">${s.name}</span><span style="font-size:10px;color:var(--text-muted)">${s.count} · ${s.sentiment}</span></li>`;
+        if (s.platform) return `<li><span class="srv-name">${s.name}</span><span style="font-size:10px;color:var(--text-muted)">${s.platform} · ${s.reach} · ${s.category}</span></li>`;
+        if (s.followers) return `<li><span class="srv-name">${s.name}</span><span style="font-size:10px;color:var(--text-muted)">${s.followers} Followers · ${s.engagement}互动</span></li>`;
+        return `<li><span class="srv-name">${s.name}</span><span style="font-size:10px;color:var(--text-muted)">${s.status||''} · ${s.effect||''} · ${s.time||''}</span></li>`;
+      }).join('')}
+    </ul>
+  ` : '';
+
+  const insights = m.insights.map(i => `
+    <div class="insight-card ${i.type}">
+      <div class="insight-title">${i.title}</div>
+      <div class="insight-desc">${i.desc}</div>
+    </div>
+  `).join('');
+
+  const actions = m.actions.map(a => `
+    <div class="action-item">
+      <div class="act-title">${a.title}</div>
+      <div class="act-desc">${a.desc}</div>
+      <span class="act-btn">${a.btn}</span>
+    </div>
+  `).join('');
+
+  return `
+    <div class="module-header">
+      <h2>${m.title}</h2>
+      <span class="subtitle">${m.subtitle}</span>
+    </div>
+    ${filterHTML}
+    <div class="panels">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-icon">📋</span>
+          <span class="panel-title">数据层</span>
+          <span class="panel-badge badge-data">实时</span>
+        </div>
+        <div class="panel-body">
+          <div class="data-row">${dataCards}</div>
+          ${servers}
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-icon">💡</span>
+          <span class="panel-title">洞察层</span>
+          <span class="panel-badge badge-insight">AI 分析</span>
+        </div>
+        <div class="panel-body">${insights}</div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-icon">⚡</span>
+          <span class="panel-title">动作层</span>
+          <span class="panel-badge badge-action">可执行</span>
+        </div>
+        <div class="panel-body">${actions}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ============ 下拉菜单交互 ============
+function bindFilterDropdowns() {
+  const scopeDropdown = document.getElementById('scopeDropdown');
+  const timeDropdown = document.getElementById('timeDropdown');
+  if (!scopeDropdown && !timeDropdown) return;
+
+  function setupDropdown(ddId, triggerId, menuId) {
+    const dd = document.getElementById(ddId);
+    const trigger = document.getElementById(triggerId);
+    const menu = document.getElementById(menuId);
+    if (!dd || !trigger || !menu) return;
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = menu.classList.contains('show');
+      document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('show'));
+      if (!isOpen) menu.classList.add('show');
+    });
+  }
+  setupDropdown('scopeDropdown', 'scopeTrigger', 'scopeMenu');
+  setupDropdown('timeDropdown', 'timeTrigger', 'timeMenu');
+
+  // 选项点击
+  document.querySelectorAll('.filter-option').forEach(opt => {
+    opt.addEventListener('click', function() {
+      const group = this.dataset.group;
+      const val = this.dataset.val;
+      const label = this.textContent.replace('当前', '').trim();
+      // 更新同组选中态
+      this.parentElement.querySelectorAll('.filter-option').forEach(o => o.classList.remove('selected'));
+      this.classList.add('selected');
+      // 更新触发按钮文字
+      if (group === 'scope') {
+        const dotEl = this.querySelector('.dot')?.cloneNode(true) || '';
+        document.getElementById('scopeText').textContent = label;
+      } else {
+        document.getElementById('timeText').textContent = label;
+      }
+      // 关闭菜单
+      this.parentElement.classList.remove('show');
+    });
+  });
+}
+
+// 点击外部关闭
+document.addEventListener('click', () => {
+  document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('show'));
+});
+
+// ============ 初始化 ============
+const contentEl = document.getElementById('mainContent');
+let currentModule = 'hotspot';
+contentEl.innerHTML = renderModule(currentModule);
+bindFilterDropdowns();
+
+// 导航切换
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+    currentModule = this.dataset.module;
+    contentEl.innerHTML = renderModule(currentModule);
+    bindFilterDropdowns();
+  });
+});
+
+// 角色切换
+document.querySelectorAll('.role-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
