@@ -242,6 +242,62 @@ body {
 .alert-item .alert-info { flex: 1; }
 .alert-item .alert-title { font-size: 12px; color: var(--text-primary); font-weight: 600; }
 .alert-item .alert-desc { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+/* Dashboard specific */
+.kpi-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.kpi-card {
+  flex: 1; background: linear-gradient(135deg, var(--bg-card), var(--bg-panel));
+  border-radius: 12px; padding: 16px; border: 1px solid var(--border);
+}
+.kpi-card .kpi-val { font-size: 28px; font-weight: 800; color: #fff; }
+.kpi-card .kpi-val.small { font-size: 20px; }
+.kpi-card .kpi-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.kpi-card .kpi-sub { font-size: 10px; margin-top: 4px; }
+.kpi-card .kpi-sub.up { color: var(--accent-green); }
+.kpi-card .kpi-sub.down { color: var(--accent-red); }
+
+.dash-grid2 { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; margin-bottom: 16px; }
+.dash-grid2-swap { display: grid; grid-template-columns: 1fr 1.5fr; gap: 16px; }
+
+.chart-bar {
+  display: flex; align-items: end; gap: 4px; height: 120px; padding: 4px 0;
+}
+.chart-bar .bar {
+  flex: 1; border-radius: 3px 3px 0 0; min-width: 6px; position: relative;
+  transition: height 0.3s;
+}
+.bar.blue { background: var(--dc-brand); }
+.bar.purple { background: var(--accent-purple); }
+.bar.gold { background: var(--accent-gold); }
+.bar.orange { background: var(--accent-orange); }
+
+.compete-row { display: flex; gap: 12px; margin-bottom: 10px; align-items: center; }
+.compete-bar-wrap { flex: 1; height: 8px; background: var(--bg-card); border-radius: 4px; overflow: hidden; }
+.compete-bar-wrap .fill { height: 100%; border-radius: 4px; }
+.compete-label { font-size: 11px; color: var(--text-secondary); width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.compete-val { font-size: 11px; font-weight: 700; color: #fff; width: 50px; text-align: right; }
+
+.rank-num { width: 20px; height: 20px; border-radius: 50%; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.rank-num.top { background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange)); color: #1a1a1a; }
+.rank-num.norm { background: var(--bg-card); color: var(--text-muted); }
+
+.dash-mini {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.dash-mini-card {
+  background: var(--bg-card); border-radius: 8px; padding: 10px; border: 1px solid var(--border);
+}
+.dash-mini-card .dm-title { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+.dash-mini-card .dm-val { font-size: 16px; font-weight: 700; color: #fff; }
+.dash-mini-card .dm-val.red { color: var(--accent-red); }
+.dash-mini-card .dm-sub { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
+
+.competitor-news { font-size: 11px; line-height: 1.6; }
+.competitor-news .cn-item { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.competitor-news .cn-item:last-child { border-bottom: none; }
+.competitor-news .cn-title { color: var(--text-primary); font-weight: 600; }
+.competitor-news .cn-date { color: var(--text-muted); font-size: 10px; }
+.competitor-news .cn-impact { color: var(--accent-orange); font-size: 10px; }
 </style>
 </head>
 <body>
@@ -265,7 +321,10 @@ body {
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-label">DC 工作台</div>
-    <div class="nav-item active" data-tab="monitor">
+    <div class="nav-item active" data-tab="dashboard">
+      <span class="nav-icon">🏠</span> Dashboard
+    </div>
+    <div class="nav-item" data-tab="monitor">
       <span class="nav-icon">📊</span> 社区监控
       <span class="badge">3</span>
     </div>
@@ -304,6 +363,275 @@ body {
 <script>
 // ============ Tab 数据 ============
 const tabs = {
+  dashboard: {
+    title: "Dashboard",
+    subtitle: "Once Human 73 DC 总览 · 竞品对比 · 趋势预警 · 模块快照",
+    render() { return `
+      <div class="module-header"><h2>${this.title}</h2><span class="subtitle">${this.subtitle}</span></div>
+      <div class="panels-single" style="padding-top:0">
+        <!-- KPI 行 -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-val">218K</div><div class="kpi-label">Once Human DC 总成员</div>
+            <div class="kpi-sub up">+12K 月环比</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val small">86.4K</div><div class="kpi-label">日均消息量</div>
+            <div class="kpi-sub up">+8% MoM</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val small">47.2K</div><div class="kpi-label">本周私信触达</div>
+            <div class="kpi-sub up">500x YoY</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val small">73</div><div class="kpi-label">DC 服务器数</div>
+            <div class="kpi-sub up">+5 本季度新增</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val small" style="color:var(--accent-orange)">3.4x</div><div class="kpi-label">竞品 DC 规模倍率</div>
+            <div class="kpi-sub up">Dune 72K vs OH 218K</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val small" style="color:var(--accent-green)">87.5%</div><div class="kpi-label">版主达标率</div>
+            <div class="kpi-sub">28/32 人达标</div>
+          </div>
+        </div>
+
+        <!-- Row 1: 73 DC 趋势 + 竞品对比 -->
+        <div class="dash-grid2">
+          <!-- 左: 73 DC 趋势分析 -->
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">📈 Once Human 73 DC 趋势分析</span>
+              <span class="panel-badge bd-live">近 30 天</span>
+            </div>
+            <div class="panel-body">
+              <div class="metrics-row" style="margin-bottom:10px">
+                <div style="flex:1;text-align:center"><div style="font-size:22px;font-weight:800;color:#fff">+5.8%</div><div style="font-size:10px;color:var(--text-muted)">成员增长</div></div>
+                <div style="flex:1;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--accent-green)">+8%</div><div style="font-size:10px;color:var(--text-muted)">消息活跃</div></div>
+                <div style="flex:1;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--accent-orange)">-3.2%</div><div style="font-size:10px;color:var(--text-muted)">流失率</div></div>
+                <div style="flex:1;text-align:center"><div style="font-size:22px;font-weight:800;color:#fff">12/73</div><div style="font-size:10px;color:var(--text-muted)">预警服务器</div></div>
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">30天成员趋势（条形图）</div>
+              <div class="chart-bar">
+                <div class="bar blue" style="height:55%"></div><div class="bar blue" style="height:58%"></div>
+                <div class="bar blue" style="height:60%"></div><div class="bar blue" style="height:62%"></div>
+                <div class="bar blue" style="height:59%"></div><div class="bar blue" style="height:64%"></div>
+                <div class="bar blue" style="height:67%"></div><div class="bar blue" style="height:70%"></div>
+                <div class="bar blue" style="height:72%"></div><div class="bar blue" style="height:75%"></div>
+                <div class="bar blue" style="height:74%"></div><div class="bar blue" style="height:73%"></div>
+                <div class="bar blue" style="height:78%"></div><div class="bar blue" style="height:77%"></div>
+                <div class="bar blue" style="height:80%"></div><div class="bar blue" style="height:82%"></div>
+                <div class="bar blue" style="height:81%"></div><div class="bar blue" style="height:84%"></div>
+                <div class="bar blue" style="height:86%"></div><div class="bar blue" style="height:85%"></div>
+                <div class="bar blue" style="height:88%"></div><div class="bar blue" style="height:87%"></div>
+                <div class="bar blue" style="height:90%"></div><div class="bar blue" style="height:91%"></div>
+                <div class="bar blue" style="height:93%"></div><div class="bar blue" style="height:92%"></div>
+                <div class="bar blue" style="height:95%"></div><div class="bar blue" style="height:96%"></div>
+                <div class="bar blue" style="height:94%"></div><div class="bar blue" style="height:98%"></div>
+                <div class="bar blue" style="height:100%"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-muted);padding:0 2px">
+                <span>D1</span><span>D5</span><span>D10</span><span>D15</span><span>D20</span><span>D25</span><span>D30</span>
+              </div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:10px;padding:6px;background:var(--bg-card);border-radius:6px">
+                ⚡ 关键信号：EU-Central 活跃连降 3 天 (-18%)，与 Dune EU 免费周末时间高度重合。Asia-SG 新赛季拉动 +5.1%，NA-East 保持稳健增长。
+              </div>
+            </div>
+          </div>
+
+          <!-- 右: 竞品动态 -->
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">🎯 竞品 DC 对比 & 动态</span>
+              <span class="panel-badge" style="background:rgba(248,113,113,0.15);color:var(--accent-red)">实时</span>
+            </div>
+            <div class="panel-body">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">竞品 DC 规模对比</div>
+              <div class="compete-row">
+                <div class="compete-label" style="font-weight:700;color:var(--accent-blue)">Once Human</div>
+                <div class="compete-bar-wrap"><div class="fill" style="width:100%;background:var(--dc-brand)"></div></div>
+                <div class="compete-val">218K</div>
+              </div>
+              <div class="compete-row">
+                <div class="compete-label">Dune: Awakening</div>
+                <div class="compete-bar-wrap"><div class="fill" style="width:33%;background:var(--accent-orange)"></div></div>
+                <div class="compete-val">72K</div>
+              </div>
+              <div class="compete-row">
+                <div class="compete-label">ARK 2 (预热)</div>
+                <div class="compete-bar-wrap"><div class="fill" style="width:20%;background:var(--accent-purple)"></div></div>
+                <div class="compete-val">43K</div>
+              </div>
+              <div class="compete-row">
+                <div class="compete-label">Palworld</div>
+                <div class="compete-bar-wrap"><div class="fill" style="width:14%;background:var(--accent-blue)"></div></div>
+                <div class="compete-val">31K</div>
+              </div>
+              <div class="compete-row">
+                <div class="compete-label">Nightingale</div>
+                <div class="compete-bar-wrap"><div class="fill" style="width:6%;background:var(--text-muted)"></div></div>
+                <div class="compete-val">14K</div>
+              </div>
+
+              <div class="section-title">近期竞品动态</div>
+              <div class="competitor-news">
+                <div class="cn-item">
+                  <div class="cn-title">Dune: Awakening EU 免费周末</div>
+                  <div class="cn-date">6/21-23 · 进行中</div>
+                  <div class="cn-impact">⚠ EU区活跃被分流，OH EU-Central 消息量 -18%</div>
+                </div>
+                <div class="cn-item">
+                  <div class="cn-title">ARK 2 开启 Early Access 预售</div>
+                  <div class="cn-date">6/25 · 预售中</div>
+                  <div class="cn-impact">低价策略踩中生存类玩家心理价位</div>
+                </div>
+                <div class="cn-item">
+                  <div class="cn-title">Palworld 夏季更新预告</div>
+                  <div class="cn-date">预计 7 月中旬</div>
+                  <div class="cn-impact">社区活跃度回暖 +15%，需关注</div>
+                </div>
+                <div class="cn-item">
+                  <div class="cn-title">Nightingale 裁员后重组</div>
+                  <div class="cn-date">6/20</div>
+                  <div class="cn-impact" style="color:var(--text-muted)">短期威胁降低</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Top 10 涨势 + 模块快照 -->
+        <div class="dash-grid2-swap">
+          <!-- 左: 模块关键数据摘要 -->
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">📋 各模块关键数据快照</span>
+              <span class="panel-badge bd-data">今日</span>
+            </div>
+            <div class="panel-body">
+              <div class="dash-mini">
+                <div class="dash-mini-card">
+                  <div class="dm-title">🔧 基建配置</div>
+                  <div class="dm-val">4</div>
+                  <div class="dm-sub">频道模板 · 6 频道在线</div>
+                </div>
+                <div class="dash-mini-card">
+                  <div class="dm-title">🎯 社区活动</div>
+                  <div class="dm-val">2</div>
+                  <div class="dm-sub">进行中 · 双倍经验 +22%</div>
+                </div>
+                <div class="dash-mini-card">
+                  <div class="dm-title">💬 玩家反馈</div>
+                  <div class="dm-val">1,283</div>
+                  <div class="dm-sub">本月总量 · 68% 已提交</div>
+                </div>
+                <div class="dash-mini-card">
+                  <div class="dm-title">👥 版主管理</div>
+                  <div class="dm-val" style="color:var(--accent-green)">87.5%</div>
+                  <div class="dm-sub">达标率 · 28/32 人</div>
+                </div>
+                <div class="dash-mini-card">
+                  <div class="dm-title">🎫 工单系统</div>
+                  <div class="dm-val red">2</div>
+                  <div class="dm-sub">超 4h 未回复 · 需关注</div>
+                </div>
+                <div class="dash-mini-card">
+                  <div class="dm-title">📊 社区监控</div>
+                  <div class="dm-val" style="color:var(--accent-orange)">12</div>
+                  <div class="dm-sub">预警服务器 / 73 台</div>
+                </div>
+              </div>
+
+              <div class="section-title">紧急提醒</div>
+              <div class="alert-item warn" style="margin-bottom:6px">
+                <span class="status-dot orange"></span>
+                <div class="alert-info">
+                  <div class="alert-title">EU-Central 活跃连降 3 天</div>
+                  <div class="alert-desc">消息量 -18%，与 Dune EU 免费周末重合</div>
+                </div>
+              </div>
+              <div class="alert-item warn">
+                <span class="status-dot red"></span>
+                <div class="alert-info">
+                  <div class="alert-title">2 条工单超 4h 未回复</div>
+                  <div class="alert-desc">#T-2847 退款申诉 6h / #T-2846 账号申诉 4h</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右: Top 10 涨势榜 -->
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">🚀 涨势 Top 10 服务器</span>
+              <span class="panel-badge bd-live">近 30 天</span>
+            </div>
+            <div class="panel-body">
+              <table class="data-table">
+                <thead><tr><th style="width:30px">#</th><th>服务器</th><th>当前成员</th><th>30日增长</th><th>增长率</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><span class="rank-num top">1</span></td>
+                    <td class="td-name">Asia-SG #01</td><td>22.8K</td><td class="td-status live">+5.1K</td>
+                    <td style="color:var(--accent-green);font-weight:700">+28.8%</td>
+                  </tr>
+                  <tr>
+                    <td><span class="rank-num top">2</span></td>
+                    <td class="td-name">NA-East #01</td><td>48.2K</td><td class="td-status live">+3.8K</td>
+                    <td style="color:var(--accent-green);font-weight:700">+8.6%</td>
+                  </tr>
+                  <tr>
+                    <td><span class="rank-num top">3</span></td>
+                    <td class="td-name">NA-West #02</td><td>31.5K</td><td class="td-status live">+2.4K</td>
+                    <td style="color:var(--accent-green)">+8.2%</td>
+                  </tr>
+                  <tr>
+                    <td><span class="rank-num norm">4</span></td>
+                    <td class="td-name">EU-Nordic #03</td><td>15.3K</td><td class="td-status live">+1.8K</td>
+                    <td style="color:var(--accent-green)">+13.3%</td>
+                  </tr>
+                  <tr>
+                    <td><span class="rank-num norm">5</span></td>
+                    <td class="td-name">Asia-JP #02</td><td>18.1K</td><td class="td-status live">+1.5K</td>
+                    <td style="color:var(--accent-green)">+9.0%</td>
+                  </tr>
+                  <tr>
+                    <td><span class="rank-num norm">6</span></td>
+                    <td class="td-name">SA-Brazil #01</td><td>12.4K</td><td class="td-status live">+1.3K</td>
+                    <td style="color:var(--accent-green)">+11.7%</td>
+                  </tr>
+                  <tr>
+                    <td><span class="rank-num norm">7</span></td>
+                    <td class="td-name">NA-Central #03</td><td>9.8K</td><td class="td-status live">+1.2K</td>
+                    <td style="color:var(--accent-green)">+14.0%</td>
+                  </tr>
+                  <tr>
+                    <td><span class="rank-num norm">8</span></td>
+                    <td class="td-name">OCE-Sydney #01</td><td>7.2K</td><td class="td-status live">+920</td>
+                    <td style="color:var(--accent-green)">+14.6%</td>
+                  </tr>
+                  <tr>
+                    <td><span class="rank-num norm">9</span></td>
+                    <td class="td-name">Asia-KR #01</td><td>11.3K</td><td class="td-status live">+880</td>
+                    <td style="color:var(--accent-green)">+8.4%</td>
+                  </tr>
+                  <tr>
+                    <td><span class="rank-num norm">10</span></td>
+                    <td class="td-name">EU-East #02</td><td>6.6K</td><td class="td-status live">+750</td>
+                    <td style="color:var(--accent-green)">+12.8%</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:8px;text-align:center">
+                Asia-SG 新赛季效应 · EU-Central 跌出 Top 10（排第 21 位）
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`; }
+  },
+
   monitor: {
     title: "社区监控",
     subtitle: "DC 全服数据概览 · 趋势波动 · 异常预警",
@@ -677,7 +1005,7 @@ function renderTab(tabKey) {
 }
 
 const contentEl = document.getElementById('mainContent');
-contentEl.innerHTML = renderTab('monitor');
+contentEl.innerHTML = renderTab('dashboard');
 
 // ============ Nav ============
 document.querySelectorAll('.nav-item').forEach(item => {
